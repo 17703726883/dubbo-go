@@ -39,7 +39,10 @@ import (
 
 	perrors "github.com/pkg/errors"
 
-	"github.com/satori/go.uuid"
+	// TODO v.1.5.x start
+	//"github.com/satori/go.uuid"
+	// TODO v.1.5.x end
+	"github.com/google/uuid"
 )
 
 import (
@@ -209,7 +212,10 @@ func WithToken(token string) Option {
 		if len(token) > 0 {
 			value := token
 			if strings.ToLower(token) == "true" || strings.ToLower(token) == "default" {
-				u, err := uuid.NewV4()
+				// TODO v.1.5.x start
+				//u, err := uuid.NewV4()
+				// TODO v.1.5.x end
+				u, err := uuid.NewUUID()
 				if err != nil {
 					logger.Errorf("could not generator UUID: %v", err)
 					return
@@ -692,16 +698,31 @@ func MergeUrl(serviceUrl *URL, referenceUrl *URL) *URL {
 	params := mergedUrl.GetParams()
 	// iterator the referenceUrl if serviceUrl not have the key ,merge in
 	// referenceUrl usually will not changed. so change RangeParams to GetParams to avoid the string value copy.
+
+	// TODO v1.5.x start
+	//for key, value := range referenceUrl.GetParams() {
+	//	if v := mergedUrl.GetParam(key, ""); len(v) == 0 {
+	//		if len(value) > 0 {
+	//			params[key] = value
+	//		}
+	//	}
+	//}
+	// TODO v1.5.x end
+
 	for key, value := range referenceUrl.GetParams() {
-		if v := mergedUrl.GetParam(key, ""); len(v) == 0 {
-			if len(value) > 0 {
-				params[key] = value
+		if v := mergedUrl.GetParam(key, ""); len(v) == 0 && len(value) > 0 {
+			if params == nil {
+				params = url.Values{}
 			}
+			params[key] = make([]string, len(value))
+			copy(params[key], value)
 		}
 	}
 
 	// loadBalance,cluster,retries strategy config
-	methodConfigMergeFcn := mergeNormalParam(params, referenceUrl, []string{constant.LOADBALANCE_KEY, constant.CLUSTER_KEY, constant.RETRIES_KEY, constant.TIMEOUT_KEY})
+	// TODO v1.5.x start
+	//methodConfigMergeFcn := mergeNormalParam(params, referenceUrl, []string{constant.LOADBALANCE_KEY, constant.CLUSTER_KEY, constant.RETRIES_KEY, constant.TIMEOUT_KEY})
+	// TODO v1.5.x end
 
 	// remote timestamp
 	if v := serviceUrl.GetParam(constant.TIMESTAMP_KEY, ""); len(v) > 0 {
@@ -710,11 +731,31 @@ func MergeUrl(serviceUrl *URL, referenceUrl *URL) *URL {
 	}
 
 	// finally execute methodConfigMergeFcn
+	// TODO v1.5.x start
+	//for _, method := range referenceUrl.Methods {
+	//	for _, fcn := range methodConfigMergeFcn {
+	//		fcn("methods." + method)
+	//	}
+	//}
+	// TODO v1.5.x end
+
+	// TODO v3.0.5 start
 	for _, method := range referenceUrl.Methods {
-		for _, fcn := range methodConfigMergeFcn {
-			fcn("methods." + method)
+		for _, paramKey := range []string{constant.LOADBALANCE_KEY, constant.CLUSTER_KEY, constant.RETRIES_KEY, constant.TIMEOUT_KEY} {
+			if v := referenceUrl.GetParam(paramKey, ""); len(v) > 0 {
+				params[paramKey] = []string{v}
+			}
+
+			methodsKey := "methods." + method + "." + paramKey
+			//if len(mergedURL.GetParam(methodsKey, "")) == 0 {
+			if v := referenceUrl.GetParam(methodsKey, ""); len(v) > 0 {
+				params[methodsKey] = []string{v}
+			}
+			//}
 		}
 	}
+	// TODO v3.0.5 end
+
 	// In this way, we will raise some performance.
 	mergedUrl.ReplaceParams(params)
 	return mergedUrl
@@ -818,20 +859,22 @@ func IsEquals(left *URL, right *URL, excludes ...string) bool {
 	return true
 }
 
-func mergeNormalParam(params url.Values, referenceUrl *URL, paramKeys []string) []func(method string) {
-	methodConfigMergeFcn := make([]func(method string), 0, len(paramKeys))
-	for _, paramKey := range paramKeys {
-		if v := referenceUrl.GetParam(paramKey, ""); len(v) > 0 {
-			params[paramKey] = []string{v}
-		}
-		methodConfigMergeFcn = append(methodConfigMergeFcn, func(method string) {
-			if v := referenceUrl.GetParam(method+"."+paramKey, ""); len(v) > 0 {
-				params[method+"."+paramKey] = []string{v}
-			}
-		})
-	}
-	return methodConfigMergeFcn
-}
+// TODO v1.5.x start
+//func mergeNormalParam(params url.Values, referenceUrl *URL, paramKeys []string) []func(method string) {
+//	methodConfigMergeFcn := make([]func(method string), 0, len(paramKeys))
+//	for _, paramKey := range paramKeys {
+//		if v := referenceUrl.GetParam(paramKey, ""); len(v) > 0 {
+//			params[paramKey] = []string{v}
+//		}
+//		methodConfigMergeFcn = append(methodConfigMergeFcn, func(method string) {
+//			if v := referenceUrl.GetParam(method+"."+paramKey, ""); len(v) > 0 {
+//				params[method+"."+paramKey] = []string{v}
+//			}
+//		})
+//	}
+//	return methodConfigMergeFcn
+//}
+// TODO v1.5.x end
 
 // URLSlice will be used to sort URL instance
 // Instances will be order by URL.String()

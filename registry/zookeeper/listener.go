@@ -92,8 +92,11 @@ func (l *RegistryDataListener) DataChange(eventType remoting.Event) bool {
 		if serviceURL.ServiceKey() == serviceKey {
 			listener.Process(
 				&config_center.ConfigChangeEvent{
-					Key:        eventType.Path,
-					Value:      serviceURL,
+					Key: eventType.Path,
+					// TODO v1.5.x start
+					//Value:      serviceURL,
+					// TODO v1.5.x end
+					Value:      serviceURL.Clone(),
 					ConfigType: eventType.Action,
 				},
 			)

@@ -74,6 +74,9 @@ func (l *ZkEventListener) ListenServiceNodeEvent(zkPath string, listener remotin
 	// listen l service node
 	l.wg.Add(1)
 	go func(zkPath string, listener remoting.DataListener) {
+		// TODO v3.0.5 start
+		defer l.wg.Done()
+		// TODO v3.0.5 end
 		if l.listenServiceNodeEvent(zkPath, listener) {
 			listener.DataChange(remoting.Event{Path: zkPath, Action: remoting.EventTypeDel})
 			l.pathMapLock.Lock()
@@ -86,7 +89,9 @@ func (l *ZkEventListener) ListenServiceNodeEvent(zkPath string, listener remotin
 
 // nolint
 func (l *ZkEventListener) listenServiceNodeEvent(zkPath string, listener ...remoting.DataListener) bool {
-	defer l.wg.Done()
+	// TODO v3.0.5 start
+	// defer l.wg.Done()
+	// TODO v3.0.5 end
 
 	l.pathMapLock.Lock()
 	a, ok := l.pathMap[zkPath]
@@ -189,6 +194,9 @@ func (l *ZkEventListener) handleZkNodeEvent(zkPath string, children []string, li
 		// listen l service node
 		l.wg.Add(1)
 		go func(node string, listener remoting.DataListener) {
+			// TODO v3.0.5 start
+			defer l.wg.Done()
+			// TODO v3.0.5 end
 			// invoker l.wg.Done() in l.listenServiceNodeEvent
 			if l.listenServiceNodeEvent(node, listener) {
 				logger.Warnf("delete zkNode{%s}", node)
@@ -318,6 +326,9 @@ func (l *ZkEventListener) listenDirEvent(conf *common.URL, zkPath string, listen
 			logger.Infof("listen dubbo service key{%s}", dubboPath)
 			l.wg.Add(1)
 			go func(zkPath string, listener remoting.DataListener) {
+				// TODO v3.0.5 start
+				defer l.wg.Done()
+				// TODO v3.0.5 end
 				// invoker l.wg.Done() in l.listenServiceNodeEvent
 				if l.listenServiceNodeEvent(zkPath, listener) {
 					listener.DataChange(remoting.Event{Path: zkPath, Action: remoting.EventTypeDel})
