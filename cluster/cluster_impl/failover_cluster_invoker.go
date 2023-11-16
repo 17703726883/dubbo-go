@@ -123,7 +123,7 @@ func getRetries(invokers []protocol.Invoker, methodName string) int {
 
 	retries, err := strconv.Atoi(retriesConfig)
 	if err != nil || retries < 0 {
-		logger.Errorf("获取重试配置失败，将使用默认重试配置，错误信息为：%v，接口：%v，方法：%v", err, url.Service(), methodName)
+		logger.Errorf("获取重试配置失败，将使用默认重试配置，错误信息为：%v，接口：%v，方法：%v，retries：%v", err, url.Service(), methodName, retries)
 		logger.Error("Your retries config is invalid,pls do a check. And will use the default retries configuration instead.")
 		retries = constant.DEFAULT_RETRIES_INT
 	}
