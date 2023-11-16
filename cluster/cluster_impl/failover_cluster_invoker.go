@@ -114,13 +114,18 @@ func getRetries(invokers []protocol.Invoker, methodName string) int {
 	}
 
 	url := invokers[0].GetURL()
+	params := url.GetParams()
+	for s := range params {
+		logger.Infof("获取重试配置失败 key:%s,value:%s", s, params.Get(s))
+	}
 	//get reties
 	retriesConfig := url.GetParam(constant.RETRIES_KEY, constant.DEFAULT_RETRIES)
+	logger.Errorf("获取重试配置失败，将使用默认重试配置，接口：%v，方法：%v，retriesConfig：%v", url.Service(), methodName, retriesConfig)
 	//Get the service method loadbalance config if have
 	if v := url.GetMethodParam(methodName, constant.RETRIES_KEY, ""); len(v) != 0 {
 		retriesConfig = v
+		logger.Errorf("获取重试配置失败，将使用默认重试配置，接口：%v，方法：%v，url.GetMethodParam：%v", url.Service(), methodName, v)
 	}
-
 	retries, err := strconv.Atoi(retriesConfig)
 	if err != nil || retries < 0 {
 		logger.Errorf("获取重试配置失败，将使用默认重试配置，错误信息为：%v，接口：%v，方法：%v，retries：%v", err, url.Service(), methodName, retries)
