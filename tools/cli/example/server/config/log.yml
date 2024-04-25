@@ -26,3 +26,15 @@ logConfig:
   errorOutputPaths:
     - "stderr"
   initialFields:
+
+# infoFilename、warnFilename、errorFilename可以相同文件，但是在轮替时会出现文件大小大于maxSize的情况才轮替
+# error及error以上的日志会输出到errorFilename文件中
+rolling:
+  logFilePath: "./logs"
+  infoFilename: "dubbo-info.log"
+  warnFilename: "dubbo-warn.log"
+  errorFilename: "dubbo-error.log"
+  maxSize: 1
+  maxBackups: 3
+  maxAge: 7
+  compress: false

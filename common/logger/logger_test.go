@@ -60,7 +60,7 @@ func TestInitLog(t *testing.T) {
 	err = InitLog("./log.yml")
 	assert.NoError(t, err)
 
-	for i := 0; i < 1; i++ {
+	for i := 0; i < 500; i++ {
 		Debug("debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!")
 		Info("info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!")
 		Warn("warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!")
@@ -72,7 +72,7 @@ func TestInitLog(t *testing.T) {
 		time.Sleep(100 * time.Millisecond)
 	}
 	gettyLogger := getty.GetLogger()
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 500; i++ {
 		gettyLogger.Debug("gettyLogger=debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!")
 		gettyLogger.Info("gettyLogger=info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!")
 		gettyLogger.Warn("gettyLogger=warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!")

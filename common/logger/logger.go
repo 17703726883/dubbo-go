@@ -129,7 +129,7 @@ func InitLoggerWithRolling(conf *zap.Config, rolling *RollingFileConfig) {
 			CallerKey:      "caller",
 			MessageKey:     "message",
 			StacktraceKey:  "stacktrace",
-			EncodeLevel:    zapcore.CapitalColorLevelEncoder,
+			EncodeLevel:    zapcore.CapitalLevelEncoder,
 			EncodeTime:     zapcore.ISO8601TimeEncoder,
 			EncodeDuration: zapcore.SecondsDurationEncoder,
 			EncodeCaller:   zapcore.ShortCallerEncoder,
@@ -150,27 +150,49 @@ func InitLoggerWithRolling(conf *zap.Config, rolling *RollingFileConfig) {
 
 	if rolling == nil {
 		lumberjackRolling = RollingFileConfig{
-			LogFilePath: "./logs",
-			Filename:    "dubbo-go.log",
-			MaxSize:     20,
-			MaxBackups:  3,
-			MaxAge:      3,
-			Compress:    false,
+			LogFilePath:   "./logs",
+			ErrorFilename: "dubbo-error.log",
+			WarnFilename:  "dubbo-warn.log",
+			InfoFilename:  "dubbo-info.log",
+			MaxSize:       30,
+			MaxBackups:    1,
+			MaxAge:        3,
+			Compress:      false,
 		}
 	} else {
 		lumberjackRolling = *rolling
 	}
 
-	lumberjackLogger := initLumberjackLogger(lumberjackRolling.Filename, lumberjackRolling)
+	logEncoder := zapcore.NewJSONEncoder(zapLoggerConfig.EncoderConfig)
+
+	infoLogger := initLumberjackLogger(lumberjackRolling.InfoFilename, lumberjackRolling)
+	infoLevel := zap.LevelEnablerFunc(func(level zapcore.Level) bool {
+		return level == zapcore.InfoLevel && level-zapcore.InfoLevel-zapLoggerConfig.Level.Level() > -1
+	})
+	warnLogger := initLumberjackLogger(lumberjackRolling.WarnFilename, lumberjackRolling)
+	warnLevel := zap.LevelEnablerFunc(func(level zapcore.Level) bool {
+		return level == zapcore.WarnLevel && zapcore.WarnLevel-zapLoggerConfig.Level.Level() > -1
+	})
+	errorLogger := initLumberjackLogger(lumberjackRolling.ErrorFilename, lumberjackRolling)
+	errorLevel := zap.LevelEnablerFunc(func(level zapcore.Level) bool {
+		return level > zapcore.WarnLevel && zapcore.WarnLevel-zapLoggerConfig.Level.Level() > -1
+	})
+
+	consoleLevel := zap.LevelEnablerFunc(func(level zapcore.Level) bool {
+		return level-zapLoggerConfig.Level.Level() > -1
+	})
+
+	zapCores := []zapcore.Core{
+		zapcore.NewCore(logEncoder, zapcore.AddSync(infoLogger), infoLevel),
+		zapcore.NewCore(logEncoder, zapcore.AddSync(warnLogger), warnLevel),
+		zapcore.NewCore(logEncoder, zapcore.AddSync(errorLogger), errorLevel),
+		zapcore.NewCore(logEncoder, zapcore.AddSync(os.Stdout), consoleLevel),
+	}
 
 	zapLogger, _ := zapLoggerConfig.Build(
 		zap.AddCallerSkip(1),
 		zap.WrapCore(func(core zapcore.Core) zapcore.Core {
-			return zapcore.NewTee(core, zapcore.NewCore(
-				zapcore.NewJSONEncoder(zapLoggerConfig.EncoderConfig),
-				zapcore.AddSync(lumberjackLogger),
-				zapLoggerConfig.Level,
-			))
+			return zapcore.NewTee(zapCores...)
 		}),
 	)
 
@@ -231,12 +253,14 @@ func initLumberjackLogger(filename string, fileConfig RollingFileConfig) *lumber
 }
 
 type RollingFileConfig struct {
-	LogFilePath string `json:"logFilePath" yaml:"logFilePath"` // 日志路径
-	Filename    string `json:"filename" yaml:"filename"`       // 日志文件名
-	MaxSize     int    `json:"maxSize" yaml:"maxSize"`         // 一个文件多少Ｍ（大于该数字开始切分文件）
-	MaxBackups  int    `json:"maxBackups" yaml:"maxBackups"`   // MaxBackups是要保留的最大旧日志文件数
-	MaxAge      int    `json:"maxAge" yaml:"maxAge"`           // MaxAge是根据日期保留旧日志文件的最大天数
-	Compress    bool   `json:"compress" yaml:"compress"`       // 是否压缩
+	LogFilePath   string `json:"logFilePath" yaml:"logFilePath"`     // 日志路径
+	ErrorFilename string `json:"errorFilename" yaml:"errorFilename"` // 默认名称：error.log
+	WarnFilename  string `json:"warnFilename" yaml:"warnFilename"`   // 默认名称：warn.log
+	InfoFilename  string `json:"infoFilename" yaml:"infoFilename"`   // 默认名称：info.log
+	MaxSize       int    `json:"maxSize" yaml:"maxSize"`             // 一个文件多少Ｍ（大于该数字开始切分文件）
+	MaxBackups    int    `json:"maxBackups" yaml:"maxBackups"`       // MaxBackups是要保留的最大旧日志文件数
+	MaxAge        int    `json:"maxAge" yaml:"maxAge"`               // MaxAge是根据日期保留旧日志文件的最大天数
+	Compress      bool   `json:"compress" yaml:"compress"`           // 是否压缩
 }
 
 type ConfigWrapper struct {
