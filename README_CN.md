@@ -10,6 +10,8 @@
 
 Apache Dubbo Go 语言实现，架起 Java 和 Go 之间的桥梁，与 gRPC/Spring Cloud 生态互联互通，带领 Java 生态享受云原生时代的技术红利。
 
+checkout from v1.5.9
+
 ## 证书 ##
 
 Apache License, Version 2.0

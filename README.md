@@ -10,6 +10,7 @@
 
 Apache Dubbo Go Implementation to bridge the gap between java and go.
 
+checkout from v1.5.9
 
 ## License
 

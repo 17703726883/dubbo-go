@@ -19,11 +19,13 @@ package logger
 
 import (
 	"fmt"
+	getty "github.com/apache/dubbo-getty"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"testing"
+	"time"
 )
 
 import (
@@ -58,14 +60,29 @@ func TestInitLog(t *testing.T) {
 	err = InitLog("./log.yml")
 	assert.NoError(t, err)
 
-	Debug("debug")
-	Info("info")
-	Warn("warn")
-	Error("error")
-	Debugf("%s", "debug")
-	Infof("%s", "info")
-	Warnf("%s", "warn")
-	Errorf("%s", "error")
+	for i := 0; i < 1; i++ {
+		Debug("debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!")
+		Info("info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!")
+		Warn("warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!")
+		Error("error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!")
+		Debugf("debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!")
+		Infof("info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!")
+		Warnf("warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!")
+		Errorf("error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!")
+		time.Sleep(100 * time.Millisecond)
+	}
+	gettyLogger := getty.GetLogger()
+	for i := 0; i < 1000; i++ {
+		gettyLogger.Debug("gettyLogger=debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!")
+		gettyLogger.Info("gettyLogger=info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!")
+		gettyLogger.Warn("gettyLogger=warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!")
+		gettyLogger.Error("gettyLogger=error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!")
+		gettyLogger.Debugf("gettyLogger=debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!debug!")
+		gettyLogger.Infof("gettyLogger=info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!info!")
+		gettyLogger.Warnf("gettyLogger=warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!warn!")
+		gettyLogger.Errorf("gettyLogger=error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!error!")
+		time.Sleep(100 * time.Millisecond)
+	}
 }
 
 func TestSetLevel(t *testing.T) {

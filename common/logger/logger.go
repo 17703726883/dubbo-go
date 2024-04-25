@@ -19,10 +19,12 @@ package logger
 
 import (
 	"flag"
+	"github.com/natefinch/lumberjack"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 )
 
 import (
@@ -86,34 +88,38 @@ func init() {
 // InitLog use for init logger by call InitLogger
 func InitLog(logConfFile string) error {
 	if logConfFile == "" {
-		InitLogger(nil)
+		InitLoggerWithRolling(nil, nil)
 		return perrors.New("log configure file name is nil")
 	}
 	if path.Ext(logConfFile) != ".yml" {
-		InitLogger(nil)
+		InitLoggerWithRolling(nil, nil)
 		return perrors.Errorf("log configure file name{%s} suffix must be .yml", logConfFile)
 	}
 
 	confFileStream, err := ioutil.ReadFile(logConfFile)
 	if err != nil {
-		InitLogger(nil)
+		InitLoggerWithRolling(nil, nil)
 		return perrors.Errorf("ioutil.ReadFile(file:%s) = error:%v", logConfFile, err)
 	}
 
-	conf := &zap.Config{}
-	err = yaml.Unmarshal(confFileStream, conf)
-	if err != nil {
-		InitLogger(nil)
-		return perrors.Errorf("[Unmarshal]init logger error: %v", err)
+	logConfig := &ConfigWrapper{
+		LogConfig: zap.Config{},
+		Rolling:   RollingFileConfig{},
 	}
 
-	InitLogger(conf)
+	err = yaml.Unmarshal(confFileStream, logConfig)
+	if err != nil {
+		InitLoggerWithRolling(nil, nil)
+		return perrors.Errorf("yaml.Unmarshal(file:%s) = error:%v", logConfFile, err)
+	}
+
+	InitLoggerWithRolling(&logConfig.LogConfig, &logConfig.Rolling)
 
 	return nil
 }
 
-// InitLogger use for init logger by @conf
-func InitLogger(conf *zap.Config) {
+func InitLoggerWithRolling(conf *zap.Config, rolling *RollingFileConfig) {
+
 	var zapLoggerConfig zap.Config
 	if conf == nil {
 		zapLoggerEncoderConfig := zapcore.EncoderConfig{
@@ -139,11 +145,43 @@ func InitLogger(conf *zap.Config) {
 	} else {
 		zapLoggerConfig = *conf
 	}
-	zapLogger, _ := zapLoggerConfig.Build(zap.AddCallerSkip(1))
-	logger = &DubboLogger{Logger: zapLogger.Sugar(), dynamicLevel: zapLoggerConfig.Level}
 
+	var lumberjackRolling RollingFileConfig
+
+	if rolling == nil {
+		lumberjackRolling = RollingFileConfig{
+			LogFilePath: "./logs",
+			Filename:    "dubbo-go.log",
+			MaxSize:     20,
+			MaxBackups:  3,
+			MaxAge:      3,
+			Compress:    false,
+		}
+	} else {
+		lumberjackRolling = *rolling
+	}
+
+	lumberjackLogger := initLumberjackLogger(lumberjackRolling.Filename, lumberjackRolling)
+
+	zapLogger, _ := zapLoggerConfig.Build(
+		zap.AddCallerSkip(1),
+		zap.WrapCore(func(core zapcore.Core) zapcore.Core {
+			return zapcore.NewTee(core, zapcore.NewCore(
+				zapcore.NewJSONEncoder(zapLoggerConfig.EncoderConfig),
+				zapcore.AddSync(lumberjackLogger),
+				zapLoggerConfig.Level,
+			))
+		}),
+	)
+
+	logger = &DubboLogger{Logger: zapLogger.Sugar(), dynamicLevel: zapLoggerConfig.Level}
 	// set getty log
 	getty.SetLogger(logger)
+}
+
+// InitLogger use for init logger by @conf
+func InitLogger(conf *zap.Config) {
+	InitLoggerWithRolling(conf, nil)
 }
 
 // SetLogger sets logger for dubbo and getty
@@ -178,4 +216,30 @@ func (dl *DubboLogger) SetLoggerLevel(level string) {
 	if err := l.Set(level); err == nil {
 		dl.dynamicLevel.SetLevel(*l)
 	}
+}
+
+func initLumberjackLogger(filename string, fileConfig RollingFileConfig) *lumberjack.Logger {
+	// 创建info级别的lumberjack logger实例
+	lumberjackLogger := &lumberjack.Logger{
+		Filename:   fileConfig.LogFilePath + string(filepath.Separator) + filename,
+		MaxSize:    fileConfig.MaxSize,
+		MaxBackups: fileConfig.MaxBackups,
+		MaxAge:     fileConfig.MaxAge,
+		Compress:   fileConfig.Compress,
+	}
+	return lumberjackLogger
+}
+
+type RollingFileConfig struct {
+	LogFilePath string `json:"logFilePath" yaml:"logFilePath"` // 日志路径
+	Filename    string `json:"filename" yaml:"filename"`       // 日志文件名
+	MaxSize     int    `json:"maxSize" yaml:"maxSize"`         // 一个文件多少Ｍ（大于该数字开始切分文件）
+	MaxBackups  int    `json:"maxBackups" yaml:"maxBackups"`   // MaxBackups是要保留的最大旧日志文件数
+	MaxAge      int    `json:"maxAge" yaml:"maxAge"`           // MaxAge是根据日期保留旧日志文件的最大天数
+	Compress    bool   `json:"compress" yaml:"compress"`       // 是否压缩
+}
+
+type ConfigWrapper struct {
+	LogConfig zap.Config        `json:"logConfig" yaml:"logConfig"`
+	Rolling   RollingFileConfig `json:"rolling" yaml:"rolling"`
 }
